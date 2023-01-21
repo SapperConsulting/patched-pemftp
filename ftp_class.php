@@ -17,37 +17,37 @@ class ftp_base {
 	
 	/* Private variables */
 	var $_lastaction;
-	var $_errors;
-	var $_type;
-	var $_umask;
+	private $_errors;
+	private $_type;
+	private $_umask;
 	var $_timeout;
 	var $_passive;
-	var $_host;
-	var $_fullhost;
-	var $_port;
+	private $_host;
+	private $_fullhost;
+	private $_port;
 	var $_datahost;
 	var $_dataport;
 	var $_ftp_control_sock;
 	var $_ftp_data_sock;
 	var $_ftp_temp_sock;
 	var $_ftp_buff_size;
-	var $_login;
-	var $_password;
+	private $_login;
+	private $_password;
 	var $_connected;
 	var $_ready;
 	var $_code;
 	var $_message;
-	var $_can_restore;
-	var $_port_available;
-	var $_curtype;
-	var $_features;
+	private $_can_restore;
+	private $_port_available;
+	private $_curtype;
+	private $_features;
 	var $stream;
 
-	var $_error_array;
-	var $AuthorizedTransferMode;
-	var $OS_FullName;
+	private $_error_array;
+	private $AuthorizedTransferMode;
+	private $OS_FullName;
 	var $_eol_code;
-	var $AutoAsciiExt;
+	private $AutoAsciiExt;
 
 	/* Constructor */
 	// Removed to support strict mode (non-original author modification)

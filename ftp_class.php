@@ -14,39 +14,39 @@ class ftp_base {
 	public $Verbose;
 	public $OS_local;
 	public $OS_remote;
-	
+    public $_lastaction;
+    public $_timeout;
+    public $_passive;
+    public $_datahost;
+    public $_dataport;
+    public $_ftp_control_sock;
+    public $_ftp_data_sock;
+    public $_ftp_temp_sock;
+    public $_ftp_buff_size;
+    public $_connected;
+    public $_ready;
+    public $_code;
+    public $_message;
+    public $stream;
+    public $_eol_code;
+
 	/* Private variables */
-	var $_lastaction;
 	private $_errors;
 	private $_type;
 	private $_umask;
-	var $_timeout;
-	var $_passive;
 	private $_host;
 	private $_fullhost;
 	private $_port;
-	var $_datahost;
-	var $_dataport;
-	var $_ftp_control_sock;
-	var $_ftp_data_sock;
-	var $_ftp_temp_sock;
-	var $_ftp_buff_size;
 	private $_login;
 	private $_password;
-	var $_connected;
-	var $_ready;
-	var $_code;
-	var $_message;
 	private $_can_restore;
 	private $_port_available;
 	private $_curtype;
 	private $_features;
-	var $stream;
 
 	private $_error_array;
 	private $AuthorizedTransferMode;
 	private $OS_FullName;
-	var $_eol_code;
 	private $AutoAsciiExt;
 
 	/* Constructor */

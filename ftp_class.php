@@ -122,14 +122,14 @@ class ftp_base {
 			$bad=array('(?)');
 			if(in_array($v['owner'], $bad)) $v['owner']=NULL;
 			if(in_array($v['group'], $bad)) $v['group']=NULL;
-			$v['perms']+=00400*(int)($ret[2]{0}=='r');
-			$v['perms']+=00200*(int)($ret[2]{1}=='w');
+			$v['perms']+=00400*(int)($ret[2]{0} === 'r');
+			$v['perms']+=00200*(int)($ret[2]{1} === 'w');
 			$v['perms']+=00100*(int)in_array($ret[2]{2}, array('x','s'));
-			$v['perms']+=00040*(int)($ret[2]{3}=='r');
-			$v['perms']+=00020*(int)($ret[2]{4}=='w');
+			$v['perms']+=00040*(int)($ret[2]{3} === 'r');
+			$v['perms']+=00020*(int)($ret[2]{4} === 'w');
 			$v['perms']+=00010*(int)in_array($ret[2]{5}, array('x','s'));
-			$v['perms']+=00004*(int)($ret[2]{6}=='r');
-			$v['perms']+=00002*(int)($ret[2]{7}=='w');
+			$v['perms']+=00004*(int)($ret[2]{6} === 'r');
+			$v['perms']+=00002*(int)($ret[2]{7} === 'w');
 			$v['perms']+=00001*(int)in_array($ret[2]{8}, array('x','t'));
 			$v['perms']+=04000*(int)in_array($ret[2]{2}, array('S','s'));
 			$v['perms']+=02000*(int)in_array($ret[2]{5}, array('S','s'));
@@ -539,7 +539,7 @@ class ftp_base {
 		if($handle = opendir($local)) {
 			$list=array();
 			while (false !== ($file = readdir($handle))) {
-				if ($file != '.' && $file != '..') $list[]=$file;
+				if ($file !== '.' && $file !== '..') $list[]=$file;
 			}
 			closedir($handle);
 		} else {
@@ -575,11 +575,11 @@ class ftp_base {
 		}
 		foreach($list as $k=>$v) {
 			$list[$k]=$this->parselisting($v);
-			if($list[$k]['name']=='.' || $list[$k]['name']=='..') unset($list[$k]);
+			if($list[$k]['name'] === '.' || $list[$k]['name'] === '..') unset($list[$k]);
 		}
 		$ret=true;
 		foreach($list as $el) {
-			if($el['type']=='d') {
+			if($el['type'] === 'd') {
 				if(!$this->mget($remote.'/'.$el['name'], $local.'/'.$el['name'], $continious)) {
 					$this->PushError('mget', "can't copy folder", "Can't copy remote folder \"".$remote.'/'.$el["name"]."\" to local \"".$local."/".$el['name']."\"");
 					$ret=false;
@@ -608,12 +608,12 @@ class ftp_base {
 	
 		foreach($list as $k=>$v) {
 			$list[$k]=$this->parselisting($v);
-			if($list[$k]['name']=='.' || $list[$k]['name']=='..') unset($list[$k]);
+			if($list[$k]['name'] === '.' || $list[$k]['name'] === '..') unset($list[$k]);
 		}
 		$ret=true;
 	
 		foreach($list as $el) {
-			if($el['type']=='d') {
+			if($el['type'] === 'd') {
 				if(!$this->mdel($remote.'/'.$el['name'], $continious)) {
 					$ret=false;
 					if(!$continious) break;
@@ -636,7 +636,7 @@ class ftp_base {
 
 	function mmkdir($dir, $mode = 0777) {
 		if(empty($dir)) return FALSE;
-		if($this->is_exists($dir) || $dir == '/' ) return TRUE;
+		if($this->is_exists($dir) || $dir === '/' ) return TRUE;
 		if(!$this->mmkdir(dirname($dir), $mode)) return false;
 		$r=$this->mkdir($dir, $mode);
 		$this->chmod($dir,$mode);
@@ -645,7 +645,7 @@ class ftp_base {
 
 	function glob($pattern, $handle=NULL) {
 		$path=$output=null;
-		if(PHP_OS=='WIN32') $slash='\\';
+		if(PHP_OS === 'WIN32') $slash='\\';
 		else $slash='/';
 		$lastpos=strrpos($pattern,$slash);
 		if(!($lastpos===false)) {
@@ -694,7 +694,7 @@ class ftp_base {
 	}
 
 	function glob_regexp($pattern,$probe) {
-		$sensitive=(PHP_OS!='WIN32');
+		$sensitive=(PHP_OS !== 'WIN32');
 		return ($sensitive?
 			ereg($pattern,$probe):
 			eregi($pattern,$probe)
@@ -754,7 +754,7 @@ class ftp_base {
 
 $mod_sockets=TRUE;
 if (!extension_loaded('sockets')) {
-	$prefix = (PHP_SHLIB_SUFFIX == 'dll') ? 'php_' : '';
+	$prefix = (PHP_SHLIB_SUFFIX === 'dll') ? 'php_' : '';
 	if(!@dl($prefix . 'sockets.' . PHP_SHLIB_SUFFIX)) $mod_sockets=FALSE;
 }
 

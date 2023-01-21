@@ -435,7 +435,7 @@ class ftp_base {
         return $this->_list(($arg ? ' ' . $arg : '') . ($pathname ? ' ' . $pathname : ''), 'LIST', 'rawlist');
     }
 
-    public function nlist($pathname='') {
+    public function nlist($pathname='', $arg='') {
         return $this->_list(($arg ? ' ' . $arg : '') . ($pathname ? ' ' . $pathname : ''), 'NLST', 'nlist');
     }
 

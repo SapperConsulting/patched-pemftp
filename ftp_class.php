@@ -679,17 +679,17 @@ class ftp_base {
 	public function glob_pattern_match($pattern, $string) {
         $out = null;
         $chunks = explode(';', $pattern);
-        foreach ($chunks as $pattern) {
+        foreach ($chunks as $chunk) {
             $escape = array('$', '^', '.', '{', '}', '(', ')', '[', ']', '|');
-            while (strpos($pattern, '**') !== false)
-                $pattern = str_replace('**', '*', $pattern);
+            while (strpos($chunk, '**') !== false)
+                $chunk = str_replace('**', '*', $chunk);
             foreach ($escape as $probe)
-                $pattern = str_replace($probe, "\\$probe", $pattern);
-            $pattern = str_replace('?*', '*',
+                $chunk = str_replace($probe, "\\$probe", $chunk);
+            $chunk = str_replace('?*', '*',
                 str_replace('*?', '*',
                     str_replace('*', '.*',
-                        str_replace('?', '.{1,1}', $pattern))));
-            $out[] = $pattern;
+                        str_replace('?', '.{1,1}', $chunk))));
+            $out[] = $chunk;
         }
         if (count($out) == 1) return ($this->glob_regexp("^$out[0]$", $string));
         else {

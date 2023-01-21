@@ -95,8 +95,11 @@ class ftp_base {
         $this->OS_local = FTP_OS_Unix;
         $this->OS_remote = FTP_OS_Unix;
         $this->features = array();
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') $this->OS_local = FTP_OS_Windows;
-        elseif (strtoupper(substr(PHP_OS, 0, 3)) === 'MAC') $this->OS_local = FTP_OS_Mac;
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $this->OS_local = FTP_OS_Windows;
+        } elseif (strtoupper(substr(PHP_OS, 0, 3)) === 'MAC') {
+            $this->OS_local = FTP_OS_Mac;
+        }
     }
 
 // <!-- --------------------------------------------------------------------------------------- -->
@@ -120,8 +123,12 @@ class ftp_base {
                 'name' => $ret[10]
             );
             $bad = array('(?)');
-            if (in_array($v['owner'], $bad)) $v['owner'] = NULL;
-            if (in_array($v['group'], $bad)) $v['group'] = NULL;
+            if (in_array($v['owner'], $bad)) {
+                $v['owner'] = NULL;
+            }
+            if (in_array($v['group'], $bad)) {
+                $v['group'] = NULL;
+            }
             $v['perms'] += 00400 * (int)($ret[2]{0} === 'r');
             $v['perms'] += 00200 * (int)($ret[2]{1} === 'w');
             $v['perms'] += 00100 * (int)in_array($ret[2]{2}, array('x', 's'));
@@ -160,20 +167,29 @@ class ftp_base {
         if ($this->_ready) {
             if ($mode == FTP_BINARY) {
                 if ($this->_curtype != FTP_BINARY) {
-                    if (!$this->_exec('TYPE I', 'SetType')) return FALSE;
+                    if (!$this->_exec('TYPE I', 'SetType')) {
+                        return FALSE;
+                    }
                     $this->_curtype = FTP_BINARY;
                 }
             } elseif ($this->_curtype != FTP_ASCII) {
-                if (!$this->_exec('TYPE A', 'SetType')) return FALSE;
+                if (!$this->_exec('TYPE A', 'SetType')) {
+                    return FALSE;
+                }
                 $this->_curtype = FTP_ASCII;
             }
-        } else return FALSE;
+        } else {
+            return FALSE;
+        }
         return TRUE;
     }
 
 	public function Passive($pasv=NULL) {
-        if (is_null($pasv)) $this->_passive = !$this->_passive;
-        else $this->_passive = $pasv;
+        if (is_null($pasv)) {
+            $this->_passive = !$this->_passive;
+        } else {
+            $this->_passive = $pasv;
+        }
         if (!$this->_port_available && !$this->_passive) {
             $this->SendMSG('Only passive connections available!');
             $this->_passive = TRUE;
@@ -206,8 +222,12 @@ class ftp_base {
         if ($reconnect) {
             if ($this->_connected) {
                 $this->SendMSG('Reconnecting');
-                if (!$this->quit(FTP_FORCE)) return FALSE;
-                if (!$this->connect()) return FALSE;
+                if (!$this->quit(FTP_FORCE)) {
+                    return FALSE;
+                }
+                if (!$this->connect()) {
+                    return FALSE;
+                }
             }
         }
         return TRUE;
@@ -223,16 +243,23 @@ class ftp_base {
 	public function SetTimeout($timeout=30) {
         $this->_timeout = $timeout;
         $this->SendMSG('Timeout ' . $this->_timeout);
-        if ($this->_connected)
-            if (!$this->_settimeout($this->_ftp_control_sock)) return FALSE;
+        if ($this->_connected) {
+            if (!$this->_settimeout($this->_ftp_control_sock)) {
+                return FALSE;
+            }
+        }
         return TRUE;
     }
 
 	public function connect($server=NULL) {
         if (!empty($server)) {
-            if (!$this->SetServer($server)) return false;
+            if (!$this->SetServer($server)) {
+                return false;
+            }
         }
-        if ($this->_ready) return true;
+        if ($this->_ready) {
+            return true;
+        }
         $this->SendMsg('Local OS : ' . $this->OS_FullName[$this->OS_local]);
         if (!($this->_ftp_control_sock = $this->_connect($this->_host, $this->_port))) {
             $this->SendMSG(
@@ -252,29 +279,41 @@ class ftp_base {
             )
         );
         do {
-            if (!$this->_readmsg()) return FALSE;
-            if (!$this->_checkCode()) return FALSE;
+            if (!$this->_readmsg()) {
+                return FALSE;
+            }
+            if (!$this->_checkCode()) {
+                return FALSE;
+            }
             $this->_lastaction = time();
         } while ($this->_code < 200);
         $this->_ready = true;
         $syst = $this->systype();
-        if (!$syst) $this->SendMSG("Can't detect remote OS");
-        else {
+        if (!$syst) {
+            $this->SendMSG("Can't detect remote OS");
+        } else {
             if (preg_match('/win|dos|novell/i', $syst[0])) $this->OS_remote = FTP_OS_Windows;
             elseif (preg_match('/os/i', $syst[0])) $this->OS_remote = FTP_OS_Mac;
             elseif (preg_match('/(li|u)nix/i', $syst[0])) $this->OS_remote = FTP_OS_Unix;
             else $this->OS_remote = FTP_OS_Mac;
             $this->SendMSG('Remote OS: ' . $this->OS_FullName[$this->OS_remote]);
         }
-        if (!$this->features()) $this->SendMSG("Can't get features list. All supported - disabled");
-        else $this->SendMSG('Supported features: ' . implode(', ', array_keys($this->_features)));
+        if (!$this->features()) {
+            $this->SendMSG("Can't get features list. All supported - disabled");
+        } else {
+            $this->SendMSG('Supported features: ' . implode(', ', array_keys($this->_features)));
+        }
         return TRUE;
     }
 
 	public function quit($force=false) {
         if ($this->_ready) {
-            if (!$this->_exec('QUIT') && !$force) return FALSE;
-            if (!$this->_checkCode() && !$force) return FALSE;
+            if (!$this->_exec('QUIT') && !$force) {
+                return FALSE;
+            }
+            if (!$this->_checkCode() && !$force) {
+                return FALSE;
+            }
             $this->_ready = false;
             $this->SendMSG('Session finished');
         }
@@ -283,61 +322,108 @@ class ftp_base {
     }
 
 	public function login($user=NULL, $pass=NULL) {
-        if (!is_null($user)) $this->_login = $user;
-        else $this->_login = 'anonymous';
-        if (!is_null($pass)) $this->_password = $pass;
-        else $this->_password = 'anon@anon.com';
-        if (!$this->_exec('USER ' . $this->_login, 'login')) return FALSE;
-        if (!$this->_checkCode()) return FALSE;
+        if (!is_null($user)) {
+            $this->_login = $user;
+        } else {
+            $this->_login = 'anonymous';
+        }
+        if (!is_null($pass)) {
+            $this->_password = $pass;
+        } else {
+            $this->_password = 'anon@anon.com';
+        }
+        if (!$this->_exec('USER ' . $this->_login, 'login')) {
+            return FALSE;
+        }
+        if (!$this->_checkCode()) {
+            return FALSE;
+        }
         if ($this->_code != 230) {
-            if (!$this->_exec((($this->_code == 331) ? 'PASS ' : 'ACCT ') . $this->_password, 'login')) return FALSE;
-            if (!$this->_checkCode()) return FALSE;
+            if (!$this->_exec((($this->_code == 331) ? 'PASS ' : 'ACCT ') . $this->_password, 'login')) {
+                return FALSE;
+            }
+            if (!$this->_checkCode()) {
+                return FALSE;
+            }
         }
         $this->SendMSG('Authentication succeeded');
         if (empty($this->_features)) {
-            if (!$this->features()) $this->SendMSG("Can't get features list. All supported - disabled");
-            else $this->SendMSG('Supported features: ' . implode(', ', array_keys($this->_features)));
+            if (!$this->features()) {
+                $this->SendMSG("Can't get features list. All supported - disabled");
+            } else {
+                $this->SendMSG('Supported features: ' . implode(', ', array_keys($this->_features)));
+            }
         }
         return TRUE;
     }
 
 	public function pwd() {
-        if (!$this->_exec('PWD', 'pwd')) return FALSE;
-        if (!$this->_checkCode()) return FALSE;
+        if (!$this->_exec('PWD', 'pwd')) {
+            return FALSE;
+        }
+        if (!$this->_checkCode()) {
+            return FALSE;
+        }
         return preg_replace('@^[0-9]{3} "(.+)".+@', "\\1", $this->_message);
     }
 
 	public function cdup() {
-        if (!$this->_exec('CDUP', 'cdup')) return FALSE;
-        if (!$this->_checkCode()) return FALSE;
+        if (!$this->_exec('CDUP', 'cdup')) {
+            return FALSE;
+        }
+        if (!$this->_checkCode()) {
+            return FALSE;
+        }
         return true;
     }
 
 	public function chdir($pathname) {
-        if (!$this->_exec('CWD ' . $pathname, 'chdir')) return FALSE;
-        if (!$this->_checkCode()) return FALSE;
+        if (!$this->_exec('CWD ' . $pathname, 'chdir')) {
+            return FALSE;
+        }
+        if (!$this->_checkCode()) {
+            return FALSE;
+        }
         return TRUE;
     }
 
 	public function rmdir($pathname) {
-        if (!$this->_exec('RMD ' . $pathname, 'rmdir')) return FALSE;
-        if (!$this->_checkCode()) return FALSE;
+        if (!$this->_exec('RMD ' . $pathname, 'rmdir')) {
+            return FALSE;
+        }
+        if (!$this->_checkCode()) {
+            return FALSE;
+        }
         return TRUE;
     }
 
 	public function mkdir($pathname) {
-        if (!$this->_exec('MKD ' . $pathname, 'mkdir')) return FALSE;
-        if (!$this->_checkCode()) return FALSE;
+        if (!$this->_exec('MKD ' . $pathname, 'mkdir')) {
+            return FALSE;
+        }
+        if (!$this->_checkCode()) {
+            return FALSE;
+        }
         return TRUE;
     }
 
 	public function rename($from, $to) {
-        if (!$this->_exec('RNFR ' . $from, 'rename')) return FALSE;
-        if (!$this->_checkCode()) return FALSE;
+        if (!$this->_exec('RNFR ' . $from, 'rename')) {
+            return FALSE;
+        }
+        if (!$this->_checkCode()) {
+            return FALSE;
+        }
         if ($this->_code == 350) {
-            if (!$this->_exec('RNTO ' . $to, 'rename')) return FALSE;
-            if (!$this->_checkCode()) return FALSE;
-        } else return FALSE;
+            if (!$this->_exec('RNTO ' . $to, 'rename')) {
+                return FALSE;
+            }
+            if (!$this->_checkCode()) {
+                return FALSE;
+            }
+        } else {
+            return FALSE;
+        }
         return TRUE;
     }
 
@@ -346,17 +432,29 @@ class ftp_base {
             $this->PushError('filesize', 'not supported by server');
             return FALSE;
         }
-        if (!$this->_exec('SIZE ' . $pathname, 'filesize')) return FALSE;
-        if (!$this->_checkCode()) return FALSE;
+        if (!$this->_exec('SIZE ' . $pathname, 'filesize')) {
+            return FALSE;
+        }
+        if (!$this->_checkCode()) {
+            return FALSE;
+        }
         return preg_replace('@^[0-9]{3} ([0-9]+)@'.CRLF, "\\1", $this->_message);
     }
 
 	public function abort() {
-        if (!$this->_exec('ABOR', 'abort')) return FALSE;
+        if (!$this->_exec('ABOR', 'abort')) {
+            return FALSE;
+        }
         if (!$this->_checkCode()) {
-            if ($this->_code != 426) return FALSE;
-            if (!$this->_readmsg('abort')) return FALSE;
-            if (!$this->_checkCode()) return FALSE;
+            if ($this->_code != 426) {
+                return FALSE;
+            }
+            if (!$this->_readmsg('abort')) {
+                return FALSE;
+            }
+            if (!$this->_checkCode()) {
+                return FALSE;
+            }
         }
         return true;
     }
@@ -366,8 +464,12 @@ class ftp_base {
             $this->PushError('mdtm', 'not supported by server');
             return FALSE;
         }
-        if (!$this->_exec('MDTM ' . $pathname, 'mdtm')) return FALSE;
-        if (!$this->_checkCode()) return FALSE;
+        if (!$this->_exec('MDTM ' . $pathname, 'mdtm')) {
+            return FALSE;
+        }
+        if (!$this->_checkCode()) {
+            return FALSE;
+        }
         $mdtm = preg_replace('@^[0-9]{3} ([0-9]+)@'.CRLF, "\\1", $this->_message);
         $date = sscanf($mdtm, '%4d%2d%2d%2d%2d%2d');
         $timestamp = mktime($date[3], $date[4], $date[5], $date[1], $date[2], $date[0]);
@@ -375,26 +477,40 @@ class ftp_base {
     }
 
 	public function systype() {
-        if (!$this->_exec('SYST', 'systype')) return FALSE;
-        if (!$this->_checkCode()) return FALSE;
+        if (!$this->_exec('SYST', 'systype')) {
+            return FALSE;
+        }
+        if (!$this->_checkCode()) {
+            return FALSE;
+        }
         $DATA = explode(' ', $this->_message);
         return array($DATA[1], $DATA[3]);
     }
 
 	public function delete($pathname) {
-        if (!$this->_exec('DELE ' . $pathname, 'delete')) return FALSE;
-        if (!$this->_checkCode()) return FALSE;
+        if (!$this->_exec('DELE ' . $pathname, 'delete')) {
+            return FALSE;
+        }
+        if (!$this->_checkCode()) {
+            return FALSE;
+        }
         return TRUE;
     }
 
     public function site($command, $fnction='site') {
-        if (!$this->_exec('SITE ' . $command, $fnction)) return FALSE;
-        if (!$this->_checkCode()) return FALSE;
+        if (!$this->_exec('SITE ' . $command, $fnction)) {
+            return FALSE;
+        }
+        if (!$this->_checkCode()) {
+            return FALSE;
+        }
         return TRUE;
     }
 
 	public function chmod($pathname, $mode) {
-        if (!$this->site('CHMOD ' . decoct($mode) . ' ' . $pathname, 'chmod')) return FALSE;
+        if (!$this->site('CHMOD ' . decoct($mode) . ' ' . $pathname, 'chmod')) {
+            return FALSE;
+        }
         return TRUE;
     }
 
@@ -407,14 +523,22 @@ class ftp_base {
             $this->PushError('restore', "can't restore in ASCII mode");
             return FALSE;
         }
-        if (!$this->_exec('REST ' . $from, 'resore')) return FALSE;
-        if (!$this->_checkCode()) return FALSE;
+        if (!$this->_exec('REST ' . $from, 'resore')) {
+            return FALSE;
+        }
+        if (!$this->_checkCode()) {
+            return FALSE;
+        }
         return TRUE;
     }
 
     public function features() {
-        if (!$this->_exec('FEAT', 'features')) return FALSE;
-        if (!$this->_checkCode()) return FALSE;
+        if (!$this->_exec('FEAT', 'features')) {
+            return FALSE;
+        }
+        if (!$this->_checkCode()) {
+            return FALSE;
+        }
         $f = array_slice(preg_split('/[' . CRLF . ']+/', $this->_message, -1, PREG_SPLIT_NO_EMPTY), 1, -1);
         array_walk(
             $f,
@@ -445,19 +569,27 @@ class ftp_base {
 
 	public function file_exists($pathname) {
         $exists = true;
-        if (!$this->_exec('RNFR ' . $pathname, 'rename')) $exists = FALSE;
-        else {
+        if (!$this->_exec('RNFR ' . $pathname, 'rename')) {
+            $exists = FALSE;
+        } else {
             if (!$this->_checkCode()) $exists = FALSE;
             $this->abort();
         }
-        if ($exists) $this->SendMSG('Remote file ' . $pathname . ' exists');
-        else $this->SendMSG('Remote file ' . $pathname . ' does not exist');
+        if ($exists) {
+            $this->SendMSG('Remote file ' . $pathname . ' exists');
+        } else {
+            $this->SendMSG('Remote file ' . $pathname . ' does not exist');
+        }
         return $exists;
     }
 
 	public function get($remotefile, $localfile=NULL, $rest=0) {
-        if (is_null($localfile)) $localfile = $remotefile;
-        if (@file_exists($localfile)) $this->SendMSG('Warning : local file will be overwritten');
+        if (is_null($localfile)) {
+            $localfile = $remotefile;
+        }
+        if (@file_exists($localfile)) {
+            $this->SendMSG('Warning : local file will be overwritten');
+        }
         $fp = @fopen($localfile, 'w');
         if (!$fp) {
             $this->PushError('get', "can't open local file", "Can't create \"" . $localfile . "\"");
@@ -465,13 +597,18 @@ class ftp_base {
         }
         if ($this->_can_restore && $rest != 0) fseek($fp, $rest);
         $pi = pathinfo($remotefile);
-        if ($this->_type == FTP_ASCII || ($this->_type == FTP_AUTOASCII && in_array(strtoupper($pi['extension']), $this->AutoAsciiExt))) $mode = FTP_ASCII;
-        else $mode = FTP_BINARY;
+        if ($this->_type == FTP_ASCII || ($this->_type == FTP_AUTOASCII && in_array(strtoupper($pi['extension']), $this->AutoAsciiExt))) {
+            $mode = FTP_ASCII;
+        } else {
+            $mode = FTP_BINARY;
+        }
         if (!$this->_data_prepare($mode)) {
             fclose($fp);
             return FALSE;
         }
-        if ($this->_can_restore && $rest != 0) $this->restore($rest);
+        if ($this->_can_restore && $rest != 0) {
+            $this->restore($rest);
+        }
         if (!$this->_exec('RETR ' . $remotefile, 'get')) {
             $this->_data_close();
             fclose($fp);
@@ -491,7 +628,9 @@ class ftp_base {
     }
 
 	public function put($localfile, $remotefile=NULL, $rest=0) {
-        if (is_null($remotefile)) $remotefile = $localfile;
+        if (is_null($remotefile)) {
+            $remotefile = $localfile;
+        }
         if (!@file_exists($localfile)) {
             $this->PushError(
                 'put',
@@ -506,15 +645,22 @@ class ftp_base {
             $this->PushError('put', "can't open local file", "Can't read file '{$localfile}'");
             return FALSE;
         }
-        if ($this->_can_restore && $rest != 0) fseek($fp, $rest);
+        if ($this->_can_restore && $rest != 0) {
+            fseek($fp, $rest);
+        }
         $pi = pathinfo($localfile);
-        if ($this->_type == FTP_ASCII || ($this->_type == FTP_AUTOASCII && in_array(strtoupper($pi['extension']), $this->AutoAsciiExt))) $mode = FTP_ASCII;
-        else $mode = FTP_BINARY;
+        if ($this->_type == FTP_ASCII || ($this->_type == FTP_AUTOASCII && in_array(strtoupper($pi['extension']), $this->AutoAsciiExt))) {
+            $mode = FTP_ASCII;
+        } else {
+            $mode = FTP_BINARY;
+        }
         if (!$this->_data_prepare($mode)) {
             fclose($fp);
             return FALSE;
         }
-        if ($this->_can_restore && $rest != 0) $this->restore($rest);
+        if ($this->_can_restore && $rest != 0) {
+            $this->restore($rest);
+        }
         if (!$this->_exec('STOR ' . $remotefile, 'put')) {
             $this->_data_close();
             fclose($fp);
@@ -528,8 +674,12 @@ class ftp_base {
         $ret = $this->_data_write($mode, $fp);
         fclose($fp);
         $this->_data_close();
-        if (!$this->_readmsg()) return FALSE;
-        if (!$this->_checkCode()) return FALSE;
+        if (!$this->_readmsg()) {
+            return FALSE;
+        }
+        if (!$this->_checkCode()) {
+            return FALSE;
+        }
         return $ret;
     }
 
@@ -539,27 +689,41 @@ class ftp_base {
             $this->PushError('mput', "can't open local folder", 'Cannot stat folder "' . $local . '"');
             return FALSE;
         }
-        if (!is_dir($local)) return $this->put($local, $remote);
-        if (empty($remote)) $remote = '.';
-        elseif (!$this->file_exists($remote) && !$this->mkdir($remote)) return FALSE;
+        if (!is_dir($local)) {
+            return $this->put($local, $remote);
+        }
+        if (empty($remote)) {
+            $remote = '.';
+        } elseif (!$this->file_exists($remote) && !$this->mkdir($remote)) {
+            return FALSE;
+        }
         if ($handle = opendir($local)) {
             $list = array();
             while (false !== ($file = readdir($handle))) {
-                if ($file !== '.' && $file !== '..') $list[] = $file;
+                if ($file !== '.' && $file !== '..') {
+                    $list[] = $file;
+                }
             }
             closedir($handle);
         } else {
             $this->PushError('mput', "can't open local folder", 'Cannot read folder "' . $local . '"');
             return FALSE;
         }
-        if (empty($list)) return TRUE;
+        if (empty($list)) {
+            return TRUE;
+        }
         $ret = true;
         foreach ($list as $el) {
-            if (is_dir($local . '/' . $el)) $t = $this->mput($local . '/' . $el, $remote . '/' . $el);
-            else $t = $this->put($local . '/' . $el, $remote . '/' . $el);
+            if (is_dir($local . '/' . $el)) {
+                $t = $this->mput($local . '/' . $el, $remote . '/' . $el);
+            } else {
+                $t = $this->put($local . '/' . $el, $remote . '/' . $el);
+            }
             if (!$t) {
                 $ret = FALSE;
-                if (!$continious) break;
+                if (!$continious) {
+                    break;
+                }
             }
         }
         return $ret;
@@ -572,7 +736,9 @@ class ftp_base {
             $this->PushError('mget', "can't read remote folder list", 'Can\'t read remote folder "' . $remote . '" contents');
             return FALSE;
         }
-        if (empty($list)) return true;
+        if (empty($list)) {
+            return true;
+        }
         if (!@file_exists($local)) {
             if (!@mkdir($local)) {
                 $this->PushError('mget', "can't create local folder", "Can't create folder \"" . $local . '"');
@@ -589,18 +755,24 @@ class ftp_base {
                 if (!$this->mget($remote . '/' . $el['name'], $local . '/' . $el['name'], $continious)) {
                     $this->PushError('mget', "can't copy folder", "Can't copy remote folder \"" . $remote . '/' . $el["name"] . "\" to local \"" . $local . "/" . $el['name'] . "\"");
                     $ret = false;
-                    if (!$continious) break;
+                    if (!$continious) {
+                        break;
+                    }
                 }
             } else {
                 if (!$this->get($remote . '/' . $el['name'], $local . '/' . $el['name'])) {
                     $this->PushError('mget', "can't copy file", "Can't copy remote file \"" . $remote . '/' . $el['name'] . "\" to local \"" . $local . "/" . $el['name'] . "\"");
                     $ret = false;
-                    if (!$continious) break;
+                    if (!$continious) {
+                        break;
+                    }
                 }
             }
             @chmod($local . '/' . $el['name'], $el['perms']);
             $t = strtotime($el['date']);
-            if ($t !== -1 && $t !== false) @touch($local . '/' . $el['name'], $t);
+            if ($t !== -1 && $t !== false) {
+                @touch($local . '/' . $el['name'], $t);
+            }
         }
         return $ret;
     }
@@ -614,7 +786,9 @@ class ftp_base {
 
         foreach ($list as $k => $v) {
             $list[$k] = $this->parselisting($v);
-            if ($list[$k]['name'] === '.' || $list[$k]['name'] === '..') unset($list[$k]);
+            if ($list[$k]['name'] === '.' || $list[$k]['name'] === '..') {
+                unset($list[$k]);
+            }
         }
         $ret = true;
 
@@ -622,13 +796,17 @@ class ftp_base {
             if ($el['type'] === 'd') {
                 if (!$this->mdel($remote . '/' . $el['name'], $continious)) {
                     $ret = false;
-                    if (!$continious) break;
+                    if (!$continious) {
+                        break;
+                    }
                 }
             } else {
                 if (!$this->delete($remote . '/' . $el['name'])) {
                     $this->PushError('mdel', "can't delete file", "Can't delete remote file \"" . $remote . '/' . $el['name'] . "\"");
                     $ret = false;
-                    if (!$continious) break;
+                    if (!$continious) {
+                        break;
+                    }
                 }
             }
         }
@@ -641,9 +819,15 @@ class ftp_base {
     }
 
 	public function mmkdir($dir, $mode = 0777) {
-        if (empty($dir)) return FALSE;
-        if ($this->is_exists($dir) || $dir === '/') return TRUE;
-        if (!$this->mmkdir(dirname($dir), $mode)) return false;
+        if (empty($dir)) {
+            return FALSE;
+        }
+        if ($this->is_exists($dir) || $dir === '/') {
+            return TRUE;
+        }
+        if (!$this->mmkdir(dirname($dir), $mode)) {
+            return false;
+        }
         $r = $this->mkdir($dir, $mode);
         $this->chmod($dir, $mode);
         return $r;
@@ -651,28 +835,39 @@ class ftp_base {
 
 	public function glob($pattern, $handle=NULL) {
         $path = $output = null;
-        if (PHP_OS === 'WIN32') $slash = '\\';
-        else $slash = '/';
+        if (PHP_OS === 'WIN32') {
+            $slash = '\\';
+        } else {
+            $slash = '/';
+        }
         $lastpos = strrpos($pattern, $slash);
         if (!($lastpos === false)) {
             $path = substr($pattern, 0, -$lastpos - 1);
             $pattern = substr($pattern, $lastpos);
-        } else $path = getcwd();
+        } else {
+            $path = getcwd();
+        }
         if (is_array($handle) && !empty($handle)) {
             while ($dir = each($handle)) {
-                if ($this->glob_pattern_match($pattern, $dir))
+                if ($this->glob_pattern_match($pattern, $dir)) {
                     $output[] = $dir;
+                }
             }
         } else {
             $handle = @opendir($path);
-            if ($handle === false) return false;
+            if ($handle === false) {
+                return false;
+            }
             while ($dir = readdir($handle)) {
-                if ($this->glob_pattern_match($pattern, $dir))
+                if ($this->glob_pattern_match($pattern, $dir)) {
                     $output[] = $dir;
+                }
             }
             closedir($handle);
         }
-        if (is_array($output)) return $output;
+        if (is_array($output)) {
+            return $output;
+        }
         return false;
     }
 
@@ -681,20 +876,26 @@ class ftp_base {
         $chunks = explode(';', $pattern);
         foreach ($chunks as $chunk) {
             $escape = array('$', '^', '.', '{', '}', '(', ')', '[', ']', '|');
-            while (strpos($chunk, '**') !== false)
+            while (strpos($chunk, '**') !== false) {
                 $chunk = str_replace('**', '*', $chunk);
-            foreach ($escape as $probe)
+            }
+            foreach ($escape as $probe) {
                 $chunk = str_replace($probe, "\\$probe", $chunk);
+            }
             $chunk = str_replace('?*', '*',
                 str_replace('*?', '*',
                     str_replace('*', '.*',
                         str_replace('?', '.{1,1}', $chunk))));
             $out[] = $chunk;
         }
-        if (count($out) == 1) return ($this->glob_regexp("^$out[0]$", $string));
-        else {
-            foreach ($out as $tester)
-                if ($this->my_regexp("^$tester$", $string)) return true;
+        if (count($out) == 1) {
+            return ($this->glob_regexp("^$out[0]$", $string));
+        } else {
+            foreach ($out as $tester) {
+                if ($this->my_regexp("^$tester$", $string)) {
+                    return true;
+                }
+            }
         }
         return false;
     }
@@ -714,7 +915,9 @@ class ftp_base {
     }
 
     public function _list($arg='', $cmd='LIST', $fnction='_list') {
-        if (!$this->_data_prepare()) return false;
+        if (!$this->_data_prepare()) {
+            return false;
+        }
         if (!$this->_exec($cmd . $arg, $fnction)) {
             $this->_data_close();
             return FALSE;
@@ -727,9 +930,15 @@ class ftp_base {
         if ($this->_code < 200) {
             $out = $this->_data_read();
             $this->_data_close();
-            if (!$this->_readmsg()) return FALSE;
-            if (!$this->_checkCode()) return FALSE;
-            if ($out === FALSE) return FALSE;
+            if (!$this->_readmsg()) {
+                return FALSE;
+            }
+            if (!$this->_checkCode()) {
+                return FALSE;
+            }
+            if ($out === FALSE) {
+                return FALSE;
+            }
             $out = preg_split('/[' . CRLF . ']+/', $out, -1, PREG_SPLIT_NO_EMPTY);
 //			$this->SendMSG(implode($this->_eol_code[$this->OS_local], $out));
         }
@@ -746,22 +955,31 @@ class ftp_base {
         $error['fctname'] = $fctname;
         $error['msg'] = $msg;
         $error['desc'] = $desc;
-        if ($desc) $tmp = ' (' . $desc . ')'; else $tmp = '';
+        if ($desc) {
+            $tmp = ' (' . $desc . ')';
+        } else {
+            $tmp = '';
+        }
         $this->SendMSG($fctname . ': ' . $msg . $tmp);
         return (array_push($this->_error_array, $error));
     }
 
 // Recover an external error
 	public function PopError(){
-        if (count($this->_error_array)) return (array_pop($this->_error_array));
-        else return (false);
+        if (count($this->_error_array)) {
+            return (array_pop($this->_error_array));
+        } else {
+            return (false);
+        }
     }
 }
 
 $mod_sockets = TRUE;
 if (!extension_loaded('sockets')) {
     $prefix = (PHP_SHLIB_SUFFIX === 'dll') ? 'php_' : '';
-    if (!@dl($prefix . 'sockets.' . PHP_SHLIB_SUFFIX)) $mod_sockets = FALSE;
+    if (!@dl($prefix . 'sockets.' . PHP_SHLIB_SUFFIX)) {
+        $mod_sockets = FALSE;
+    }
 }
 
 require_once 'ftp_class_' . ($mod_sockets ? 'sockets' : 'pure') . '.php';

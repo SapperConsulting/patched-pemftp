@@ -10,10 +10,10 @@ define('FTP_OS_Mac','m');
 
 class ftp_base {
 	/* Public variables */
-	var $LocalEcho;
-	var $Verbose;
-	var $OS_local;
-	var $OS_remote;
+	public $LocalEcho;
+	public $Verbose;
+	public $OS_local;
+	public $OS_remote;
 	
 	/* Private variables */
 	var $_lastaction;

@@ -174,7 +174,7 @@ class ftp_base {
 	function Passive($pasv=NULL) {
 		if(is_null($pasv)) $this->_passive=!$this->_passive;
 		else $this->_passive=$pasv;
-		if(!$this->_port_available and !$this->_passive) {
+		if(!$this->_port_available && !$this->_passive) {
 			$this->SendMSG('Only passive connections available!');
 			$this->_passive=TRUE;
 			return FALSE;
@@ -273,8 +273,8 @@ class ftp_base {
 
 	function quit($force=false) {
 		if($this->_ready) {
-			if(!$this->_exec('QUIT') and !$force) return FALSE;
-			if(!$this->_checkCode() and !$force) return FALSE;
+			if(!$this->_exec('QUIT') && !$force) return FALSE;
+			if(!$this->_checkCode() && !$force) return FALSE;
 			$this->_ready=false;
 			$this->SendMSG('Session finished');
 		}
@@ -457,15 +457,15 @@ class ftp_base {
 			$this->PushError('get',"can't open local file", "Can't create \"".$localfile."\"");
 			return FALSE;
 		}
-		if($this->_can_restore and $rest!=0) fseek($fp, $rest);
+		if($this->_can_restore && $rest!=0) fseek($fp, $rest);
 		$pi=pathinfo($remotefile);
-		if($this->_type==FTP_ASCII or ($this->_type==FTP_AUTOASCII and in_array(strtoupper($pi['extension']), $this->AutoAsciiExt))) $mode=FTP_ASCII;
+		if($this->_type==FTP_ASCII or ($this->_type==FTP_AUTOASCII && in_array(strtoupper($pi['extension']), $this->AutoAsciiExt))) $mode=FTP_ASCII;
 		else $mode=FTP_BINARY;
 		if(!$this->_data_prepare($mode)) {
 			fclose($fp);
 			return FALSE;
 		}
-		if($this->_can_restore and $rest!=0) $this->restore($rest);
+		if($this->_can_restore && $rest!=0) $this->restore($rest);
 		if(!$this->_exec('RETR '.$remotefile, 'get')) {
 			$this->_data_close();
 			fclose($fp);
@@ -500,15 +500,15 @@ class ftp_base {
             $this->PushError('put',"can't open local file", "Can't read file '{$localfile}'");
 			return FALSE;
 		}
-		if($this->_can_restore and $rest!=0) fseek($fp, $rest);
+		if($this->_can_restore && $rest!=0) fseek($fp, $rest);
 		$pi=pathinfo($localfile);
-		if($this->_type==FTP_ASCII or ($this->_type==FTP_AUTOASCII and in_array(strtoupper($pi['extension']), $this->AutoAsciiExt))) $mode=FTP_ASCII;
+		if($this->_type==FTP_ASCII or ($this->_type==FTP_AUTOASCII && in_array(strtoupper($pi['extension']), $this->AutoAsciiExt))) $mode=FTP_ASCII;
 		else $mode=FTP_BINARY;
 		if(!$this->_data_prepare($mode)) {
 			fclose($fp);
 			return FALSE;
 		}
-		if($this->_can_restore and $rest!=0) $this->restore($rest);
+		if($this->_can_restore && $rest!=0) $this->restore($rest);
 		if(!$this->_exec('STOR '.$remotefile, 'put')) {
 			$this->_data_close();
 			fclose($fp);
@@ -535,7 +535,7 @@ class ftp_base {
 		}
 		if(!is_dir($local)) return $this->put($local, $remote);
 		if(empty($remote)) $remote='.';
-		elseif(!$this->file_exists($remote) and !$this->mkdir($remote)) return FALSE;
+		elseif(!$this->file_exists($remote) && !$this->mkdir($remote)) return FALSE;
 		if($handle = opendir($local)) {
 			$list=array();
 			while (false !== ($file = readdir($handle))) {
@@ -594,7 +594,7 @@ class ftp_base {
 			}
 			@chmod($local.'/'.$el['name'], $el['perms']);
 			$t=strtotime($el['date']);
-			if($t!==-1 and $t!==false) @touch($local.'/'.$el['name'], $t);
+			if($t!==-1 && $t!==false) @touch($local.'/'.$el['name'], $t);
 		}
 		return $ret;
 	}
@@ -652,7 +652,7 @@ class ftp_base {
 			$path=substr($pattern,0,-$lastpos-1);
 			$pattern=substr($pattern,$lastpos);
 		} else $path=getcwd();
-		if(is_array($handle) and !empty($handle)) {
+		if(is_array($handle) && !empty($handle)) {
 			while($dir=each($handle)) {
 				if($this->glob_pattern_match($pattern,$dir))
 				$output[]=$dir;
@@ -704,7 +704,7 @@ class ftp_base {
 // <!--       Private functions                                                                 -->
 // <!-- --------------------------------------------------------------------------------------- -->
 	function _checkCode() {
-		return ($this->_code<400 and $this->_code>0);
+		return ($this->_code<400 && $this->_code>0);
 	}
 
     function _list($arg='', $cmd='LIST', $fnction='_list') {

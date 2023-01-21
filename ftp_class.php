@@ -159,7 +159,16 @@ class ftp_base {
             return FALSE;
         }
         $this->_type = $mode;
-        $this->SendMSG('Transfer type: ' . ($this->_type == FTP_BINARY ? 'binary' : ($this->_type == FTP_ASCII ? 'ASCII' : 'auto ASCII')));
+        if ($this->_type == FTP_BINARY) {
+            $this->SendMSG('Transfer type: ' . 'binary');
+        } else {
+            $this->SendMSG(
+                sprintf(
+                    'Transfer type: %s',
+                    $this->_type == FTP_ASCII ? 'ASCII' : 'auto ASCII'
+                )
+            );
+        }
         return TRUE;
     }
 
@@ -310,7 +319,7 @@ class ftp_base {
         } else {
             if (preg_match('/win|dos|novell/i', $syst[0])) {
                 $this->OS_remote = FTP_OS_Windows;
-            } elseif (preg_match('/os/i', $syst[0])) {
+            } elseif (stripos($syst[0], 'os') !== false) {
                 $this->OS_remote = FTP_OS_Mac;
             } elseif (preg_match('/(li|u)nix/i', $syst[0])) {
                 $this->OS_remote = FTP_OS_Unix;
@@ -497,10 +506,11 @@ class ftp_base {
         if (!$this->_checkCode()) {
             return FALSE;
         }
-        $mdtm = preg_replace('@^[0-9]{3} ([0-9]+)@'.CRLF, "\\1", $this->_message);
-        $date = sscanf($mdtm, '%4d%2d%2d%2d%2d%2d');
-        $timestamp = mktime($date[3], $date[4], $date[5], $date[1], $date[2], $date[0]);
-        return $timestamp;
+        $date = sscanf(
+            preg_replace('@^[0-9]{3} ([0-9]+)@'.CRLF, "\\1", $this->_message),
+            '%4d%2d%2d%2d%2d%2d'
+        );
+        return mktime($date[3], $date[4], $date[5], $date[1], $date[2], $date[0]);
     }
 
 	public function systype() {
@@ -625,7 +635,11 @@ class ftp_base {
             fseek($fp, $rest);
         }
         $pi = pathinfo($remotefile);
-        if ($this->_type == FTP_ASCII || ($this->_type == FTP_AUTOASCII && in_array(strtoupper($pi['extension']), $this->AutoAsciiExt))) {
+        if ($this->_type == FTP_ASCII
+            || (
+                $this->_type == FTP_AUTOASCII
+                && in_array(strtoupper($pi['extension']), $this->AutoAsciiExt)
+            )) {
             $mode = FTP_ASCII;
         } else {
             $mode = FTP_BINARY;
@@ -681,7 +695,12 @@ class ftp_base {
             fseek($fp, $rest);
         }
         $pi = pathinfo($localfile);
-        if ($this->_type == FTP_ASCII || ($this->_type == FTP_AUTOASCII && in_array(strtoupper($pi['extension']), $this->AutoAsciiExt))) {
+        if ($this->_type == FTP_ASCII
+            || (
+                $this->_type == FTP_AUTOASCII
+                && in_array(strtoupper($pi['extension']), $this->AutoAsciiExt)
+            )
+        ) {
             $mode = FTP_ASCII;
         } else {
             $mode = FTP_BINARY;
@@ -751,11 +770,12 @@ class ftp_base {
             } else {
                 $t = $this->put($local . '/' . $el, $remote . '/' . $el);
             }
-            if (!$t) {
-                $ret = FALSE;
-                if (!$continious) {
-                    break;
-                }
+            if ($t) {
+                continue;
+            }
+            $ret = FALSE;
+            if (!$continious) {
+                break;
             }
         }
         return $ret;
@@ -765,7 +785,11 @@ class ftp_base {
     public function mget($remote, $local='.', $continious=false) {
         $list = $this->rawlist($remote, '-lA');
         if ($list === false) {
-            $this->PushError('mget', "can't read remote folder list", 'Can\'t read remote folder "' . $remote . '" contents');
+            $this->PushError(
+                'mget',
+                "can't read remote folder list",
+                sprintf('Can\'t read remote folder "%s" contents', $remote)
+            );
             return FALSE;
         }
         if (empty($list)) {
@@ -773,7 +797,11 @@ class ftp_base {
         }
         if (!@file_exists($local)) {
             if (!@mkdir($local)) {
-                $this->PushError('mget', "can't create local folder", "Can't create folder \"" . $local . '"');
+                $this->PushError(
+                    'mget',
+                    "can't create local folder",
+                    sprintf('Can\'t create folder "%s"', $local)
+                );
                 return FALSE;
             }
         }
@@ -785,7 +813,17 @@ class ftp_base {
         foreach ($list as $el) {
             if ($el['type'] === 'd') {
                 if (!$this->mget($remote . '/' . $el['name'], $local . '/' . $el['name'], $continious)) {
-                    $this->PushError('mget', "can't copy folder", "Can't copy remote folder \"" . $remote . '/' . $el["name"] . "\" to local \"" . $local . "/" . $el['name'] . "\"");
+                    $this->PushError(
+                        'mget',
+                        "can't copy folder",
+                        sprintf(
+                            'Can\'t copy remote folder "%s/%s" to local "%s/%s"',
+                            $remote,
+                            $el["name"],
+                            $local,
+                            $el['name']
+                        )
+                    );
                     $ret = false;
                     if (!$continious) {
                         break;
@@ -793,7 +831,17 @@ class ftp_base {
                 }
             } else {
                 if (!$this->get($remote . '/' . $el['name'], $local . '/' . $el['name'])) {
-                    $this->PushError('mget', "can't copy file", "Can't copy remote file \"" . $remote . '/' . $el['name'] . "\" to local \"" . $local . "/" . $el['name'] . "\"");
+                    $this->PushError(
+                        'mget',
+                        "can't copy file",
+                        sprintf(
+                            'Can\'t copy remote file "%s/%s" to local "%s/%s"',
+                            $remote,
+                            $el['name'],
+                            $local,
+                            $el['name']
+                        )
+                    );
                     $ret = false;
                     if (!$continious) {
                         break;
@@ -812,7 +860,11 @@ class ftp_base {
 	public function mdel($remote, $continious=false) {
         $list = $this->rawlist($remote, '-la');
         if ($list === false) {
-            $this->PushError('mdel', "can't read remote folder list", "Can't read remote folder \"" . $remote . "\" contents");
+            $this->PushError(
+                'mdel',
+                "can't read remote folder list",
+                "Can't read remote folder \"" . $remote . "\" contents"
+            );
             return false;
         }
 
@@ -834,7 +886,15 @@ class ftp_base {
                 }
             } else {
                 if (!$this->delete($remote . '/' . $el['name'])) {
-                    $this->PushError('mdel', "can't delete file", "Can't delete remote file \"" . $remote . '/' . $el['name'] . "\"");
+                    $this->PushError(
+                        'mdel',
+                        "can't delete file",
+                        sprintf(
+                            'Can\'t delete remote file "%s/%s"',
+                            $remote,
+                            $el['name']
+                        )
+                    );
                     $ret = false;
                     if (!$continious) {
                         break;
@@ -844,7 +904,15 @@ class ftp_base {
         }
 
         if (!$this->rmdir($remote)) {
-            $this->PushError('mdel', "can't delete folder", "Can't delete remote folder \"" . $remote . "/" . $el['name'] . "\"");
+            $this->PushError(
+                'mdel',
+                "can't delete folder",
+                sprintf(
+                    'Can\'t delete remote folder "%s/%s"',
+                    $remote,
+                    $el['name']
+                )
+            );
             $ret = false;
         }
         return $ret;
@@ -914,10 +982,11 @@ class ftp_base {
             foreach ($escape as $probe) {
                 $chunk = str_replace($probe, "\\$probe", $chunk);
             }
-            $chunk = str_replace('?*', '*',
-                str_replace('*?', '*',
-                    str_replace('*', '.*',
-                        str_replace('?', '.{1,1}', $chunk))));
+            $chunk = str_replace(
+                array('?', '*', '*?', '?*'),
+                array('.{1,1}', '.*', '*', '*'),
+                $chunk
+            );
             $out[] = $chunk;
         }
         if (count($out) == 1) {
@@ -925,7 +994,7 @@ class ftp_base {
         }
 
         foreach ($out as $tester) {
-            if ($this->my_regexp("^$tester$", $string)) {
+            if ($this->my_regexp("^" . $tester . "$", $string)) {
                 return true;
             }
         }
@@ -934,9 +1003,9 @@ class ftp_base {
 
 	public function glob_regexp($pattern, $probe) {
         $sensitive = (PHP_OS !== 'WIN32');
-        return ($sensitive ?
-            preg_match('@'.$pattern.'@',$probe):
-            preg_match('@'.$pattern.'@i',$probe)
+        return ($sensitive
+            ? preg_match('@'.$pattern.'@',$probe)
+            : preg_match('@'.$pattern.'@i',$probe)
         );
     }
 // <!-- --------------------------------------------------------------------------------------- -->

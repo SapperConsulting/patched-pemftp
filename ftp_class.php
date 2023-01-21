@@ -459,7 +459,7 @@ class ftp_base {
 		}
 		if($this->_can_restore && $rest!=0) fseek($fp, $rest);
 		$pi=pathinfo($remotefile);
-		if($this->_type==FTP_ASCII or ($this->_type==FTP_AUTOASCII && in_array(strtoupper($pi['extension']), $this->AutoAsciiExt))) $mode=FTP_ASCII;
+		if($this->_type==FTP_ASCII || ($this->_type==FTP_AUTOASCII && in_array(strtoupper($pi['extension']), $this->AutoAsciiExt))) $mode=FTP_ASCII;
 		else $mode=FTP_BINARY;
 		if(!$this->_data_prepare($mode)) {
 			fclose($fp);
@@ -502,7 +502,7 @@ class ftp_base {
 		}
 		if($this->_can_restore && $rest!=0) fseek($fp, $rest);
 		$pi=pathinfo($localfile);
-		if($this->_type==FTP_ASCII or ($this->_type==FTP_AUTOASCII && in_array(strtoupper($pi['extension']), $this->AutoAsciiExt))) $mode=FTP_ASCII;
+		if($this->_type==FTP_ASCII || ($this->_type==FTP_AUTOASCII && in_array(strtoupper($pi['extension']), $this->AutoAsciiExt))) $mode=FTP_ASCII;
 		else $mode=FTP_BINARY;
 		if(!$this->_data_prepare($mode)) {
 			fclose($fp);
@@ -575,7 +575,7 @@ class ftp_base {
 		}
 		foreach($list as $k=>$v) {
 			$list[$k]=$this->parselisting($v);
-			if($list[$k]['name']=='.' or $list[$k]['name']=='..') unset($list[$k]);
+			if($list[$k]['name']=='.' || $list[$k]['name']=='..') unset($list[$k]);
 		}
 		$ret=true;
 		foreach($list as $el) {
@@ -608,7 +608,7 @@ class ftp_base {
 	
 		foreach($list as $k=>$v) {
 			$list[$k]=$this->parselisting($v);
-			if($list[$k]['name']=='.' or $list[$k]['name']=='..') unset($list[$k]);
+			if($list[$k]['name']=='.' || $list[$k]['name']=='..') unset($list[$k]);
 		}
 		$ret=true;
 	
@@ -636,7 +636,7 @@ class ftp_base {
 
 	function mmkdir($dir, $mode = 0777) {
 		if(empty($dir)) return FALSE;
-		if($this->is_exists($dir) or $dir == '/' ) return TRUE;
+		if($this->is_exists($dir) || $dir == '/' ) return TRUE;
 		if(!$this->mmkdir(dirname($dir), $mode)) return false;
 		$r=$this->mkdir($dir, $mode);
 		$this->chmod($dir,$mode);

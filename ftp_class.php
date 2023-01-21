@@ -721,7 +721,7 @@ class ftp_base {
 // <!-- --------------------------------------------------------------------------------------- -->
 // <!-- Partie : gestion des erreurs                                                            -->
 // <!-- --------------------------------------------------------------------------------------- -->
-// G鮨re une erreur pour traitement externe ࠬa classe
+// Generates an error for processing external to the class
 	function PushError($fctname,$msg,$desc=false){
 		$error=array();
 		$error['time']=time();
@@ -733,7 +733,7 @@ class ftp_base {
 		return(array_push($this->_error_array,$error));
 	}
 	
-// R飵p貥 une erreur externe
+// Recover an external error
 	function PopError(){
 		if(count($this->_error_array)) return(array_pop($this->_error_array));
 			else return(false);
